@@ -25,16 +25,43 @@ from database import DatabaseManager, generate_session_id
 # Import language manager
 from translations import get_language_manager
 
-# Import VoiceService
-try:
-    from voice_service import VoiceService
-    VOICE_AVAILABLE = True
-except ImportError:
-    VOICE_AVAILABLE = False
-    logging.warning("Voice service not available. Text-only mode enabled.")
+# Handle different secret sources (MUST BE BEFORE ANY CONFIG USAGE)
+def load_secrets():
+    """Load secrets from various sources"""
+    # First, try Streamlit secrets (for Streamlit Cloud)
+    if hasattr(st, 'secrets'):
+        try:
+            if 'OPENAI_API_KEY' in st.secrets:
+                os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+                os.environ['MODEL_NAME'] = st.secrets.get('MODEL_NAME', 'gpt-3.5-turbo')
+                os.environ['MAX_TOKENS'] = str(st.secrets.get('MAX_TOKENS', '500'))
+                os.environ['TEMPERATURE'] = str(st.secrets.get('TEMPERATURE', '0.7'))
+                os.environ['ENABLE_VOICE'] = str(st.secrets.get('ENABLE_VOICE', 'false'))
+                return True
+        except Exception as e:
+            logging.warning(f"Could not load from st.secrets: {e}")
+    
+    # Then try environment variables (for Docker, Heroku, etc.)
+    if os.getenv('OPENAI_API_KEY'):
+        return True
+    
+    # Finally, try .env file (for local development)
+    load_dotenv()
+    return bool(os.getenv('OPENAI_API_KEY'))
 
-# Load environment variables from .env file
-load_dotenv()
+# Load secrets before anything else
+secrets_loaded = load_secrets()
+
+# Import VoiceService conditionally
+VOICE_AVAILABLE = False
+# Only try to import voice if it's enabled
+if os.getenv('ENABLE_VOICE', 'false').lower() == 'true':
+    try:
+        from voice_service import VoiceService
+        VOICE_AVAILABLE = True
+    except ImportError:
+        VOICE_AVAILABLE = False
+        logging.warning("Voice service not available. Text-only mode enabled.")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,10 +72,10 @@ logger = logging.getLogger(__name__)
 class Config:
     """Application configuration"""
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-    MODEL_NAME: str = "gpt-3.5-turbo"
-    MAX_TOKENS: int = 500
-    TEMPERATURE: float = 0.7
-    ENABLE_VOICE: bool = os.getenv("ENABLE_VOICE", "true").lower() == "true"
+    MODEL_NAME: str = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
+    MAX_TOKENS: int = int(os.getenv("MAX_TOKENS", "500"))
+    TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.7"))
+    ENABLE_VOICE: bool = os.getenv("ENABLE_VOICE", "false").lower() == "true"
     
 config = Config()
 
@@ -858,10 +885,29 @@ def main():
     
     # Check if API key is configured
     if not config.OPENAI_API_KEY:
-        create_glass_card(
-            f"⚠️ {lang_manager.get('api_key_warning')}",
-            lang_manager.get("configuration_required")
-        )
+        st.error("⚠️ OpenAI API key not found!")
+        
+        with st.expander("📖 Setup Instructions"):
+            st.markdown("""
+            ### For Streamlit Cloud:
+            1. Go to your app settings
+            2. Click on 'Secrets' in the left menu
+            3. Add your OpenAI API key:
+            ```toml
+            OPENAI_API_KEY = "your-api-key-here"
+            ```
+            
+            ### For Local Development:
+            1. Create a `.env` file in your project root
+            2. Add your OpenAI API key:
+            ```
+            OPENAI_API_KEY=your-api-key-here
+            ```
+            
+            ### For Other Platforms:
+            Set the `OPENAI_API_KEY` environment variable in your platform's dashboard.
+            """)
+        
         st.stop()
     
     # Initialize handlers
@@ -1080,25 +1126,4 @@ def main():
 **{lang_manager.get("location")}:** {info.current_location}
 
 ### 💼 {lang_manager.get("professional_details")}
-**{lang_manager.get("experience")}:** {info.years_experience} {lang_manager.get("years")}  
-**{lang_manager.get("desired_position")}:** {', '.join(info.desired_positions)}
-
-### 🛠️ {lang_manager.get("technical_skills")}
-**{lang_manager.get("tech_stack")}:** {', '.join(list(dict.fromkeys([tech.capitalize() for tech in info.tech_stack])))}
-
----
-*{lang_manager.get("screening_completed")}: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
-"""
-                            
-                            create_glass_card(summary_content, f"📋 {lang_manager.get('candidate_summary')}")
-                    
-                    st.markdown(response)
-                    st.session_state.messages.append({"role": "assistant", "content": response})
-                    save_message_to_db("assistant", response)
-                    
-                    # Speak the response if voice is enabled
-                    if st.session_state.voice_manager and st.session_state.voice_enabled:
-                        st.session_state.voice_manager.speak(response)
-
-if __name__ == "__main__":
-    main()
+**{lang_manager

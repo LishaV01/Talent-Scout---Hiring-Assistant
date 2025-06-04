@@ -72,6 +72,59 @@ Recent Candidates:
 │ Mike Chen       │ mike@...     │ 3 years    │ San Jose  │
 └─────────────────┴──────────────┴────────────┴───────────┘
 
+
+
+# Step-by-Step Instructions
+
+Clone or Download the Project
+bashgit clone <your-repository-url>
+cd Talentscout-hiring-assistant
+
+# Run the Setup Script
+bashpython setup.py
+This will:
+Create a virtual environment
+Install all dependencies
+Create necessary directories
+Initialize the database
+Create a .env file template
+
+
+Configure Environment Variables
+
+# Open .env file
+Replace your_openai_api_key_here with your actual OpenAI API key
+
+Activate Virtual Environment
+
+Windows:
+bashvenv\Scripts\activate
+
+macOS/Linux:
+bashsource venv/bin/activate
+
+
+# Run the Application
+bashstreamlit run app.py
+The app will open at http://localhost:8501
+Run Admin Dashboard (Optional)
+
+bashstreamlit run admin.py
+Access at http://localhost:8502 (if running simultaneously)
+
+Voice Service Setup
+If you want to use voice features:
+
+# Windows: Voice should work out of the box
+macOS: Install additional dependencies:
+bashbrew install portaudio
+pip install pyaudio
+
+Linux: Install system packages:
+bashsudo apt-get install portaudio19-dev python3-pyaudio
+
+
+
 # Setting up Development Environment
 # Create a Virtual Environment:
 python -m venv venv

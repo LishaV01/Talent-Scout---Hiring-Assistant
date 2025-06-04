@@ -31,6 +31,7 @@ Real-time question generation
 SQLite database for all candidate information
 Full conversation logging
 Export capabilities (JSON/CSV)
+-Multiple Language Integration
 
 Additional Features
 🔊 Voice Integration: Optional text-to-speech for accessibility

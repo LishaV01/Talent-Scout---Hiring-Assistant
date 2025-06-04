@@ -1,0 +1,195 @@
+# TalentScout Hiring Assistant Configuration
+# This file contains advanced configuration options
+
+# LLM Configuration
+llm:
+  provider: "openai"
+  model: "gpt-3.5-turbo"
+  temperature:
+    default: 0.7
+    extraction: 0.3
+    questions: 0.5
+  max_tokens: 500
+  timeout: 30
+
+# Conversation Settings
+conversation:
+  # Maximum number of turns before timeout
+  max_turns: 50
+  
+  # End keywords that trigger conversation termination
+  end_keywords:
+    - "exit"
+    - "quit"
+    - "stop"
+    - "bye"
+    - "goodbye"
+    - "cancel"
+    - "end"
+  
+  # Phases of conversation
+  phases:
+    - "greeting"
+    - "info_gathering"
+    - "technical_questions"
+    - "completed"
+
+# Candidate Information Fields
+candidate_fields:
+  required:
+    - full_name
+    - email
+    - phone
+    - years_experience
+    - desired_positions
+    - current_location
+    - tech_stack
+  
+  optional:
+    - linkedin_url
+    - github_url
+    - portfolio_url
+    - availability
+    - salary_expectations
+
+# Technical Question Configuration
+technical_questions:
+  # Number of questions to generate
+  count:
+    min: 3
+    max: 5
+  
+  # Difficulty scaling by experience
+  difficulty_levels:
+    junior:
+      max_years: 2
+      focus: "fundamentals, basic syntax, simple problem-solving"
+    
+    mid:
+      min_years: 3
+      max_years: 5
+      focus: "implementation, best practices, debugging"
+    
+    senior:
+      min_years: 6
+      focus: "architecture, optimization, team leadership, complex systems"
+  
+  # Categories of questions
+  categories:
+    - "practical implementation"
+    - "problem-solving"
+    - "best practices"
+    - "debugging scenarios"
+    - "system design"
+
+# UI Configuration
+ui:
+  # Streamlit theme
+  theme: "light"
+  
+  # Page configuration
+  page_title: "TalentScout Hiring Assistant"
+  page_icon: "🤖"
+  layout: "centered"
+  
+  # Chat interface
+  show_timestamps: false
+  show_avatars: true
+  
+  # Sidebar options
+  show_reset_button: true
+  show_export_button: false
+  show_statistics: false
+
+# Data Handling
+data:
+  # Session storage only (no persistence)
+  persistent_storage: false
+  
+  # Export formats
+  export_formats:
+    - "json"
+    - "csv"
+  
+  # Anonymization
+  anonymize_exports: true
+  
+  # Validation rules
+  validation:
+    email:
+      pattern: '^[\w\.-]+@[\w\.-]+\.\w+$'
+      message: "Please provide a valid email address"
+    
+    phone:
+      pattern: '^\+?[\d\s\-\(\)]+$'
+      min_length: 10
+      message: "Please provide a valid phone number"
+    
+    years_experience:
+      min: 0
+      max: 50
+      message: "Years of experience should be between 0 and 50"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "logs/talentscout.log"
+  max_size: "10MB"
+  backup_count: 5
+
+# Security Settings
+security:
+  # API key validation
+  require_api_key: true
+  
+  # Rate limiting
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 60
+  
+  # Input sanitization
+  sanitize_inputs: true
+  max_input_length: 1000
+
+# Feature Flags
+features:
+  # Advanced features (can be toggled on/off)
+  sentiment_analysis: false
+  multilingual_support: false
+  resume_parsing: false
+  calendar_integration: false
+  email_notifications: false
+  
+  # Export options
+  allow_data_export: true
+  allow_conversation_download: true
+
+# Error Messages
+error_messages:
+  api_key_missing: "Please provide your OpenAI API key in the sidebar to continue."
+  api_error: "I'm having trouble connecting to the AI service. Please try again in a moment."
+  invalid_input: "I didn't understand that. Could you please rephrase?"
+  session_timeout: "This session has been inactive for too long. Please refresh the page to start again."
+
+# Success Messages
+success_messages:
+  information_complete: "Great! I have all your basic information."
+  technical_complete: "Thank you for completing the technical assessment!"
+  session_saved: "Your information has been successfully recorded."
+
+# Customization
+customization:
+  # Company branding
+  company_name: "TalentScout"
+  company_tagline: "Connecting Talent with Opportunity"
+  
+  # Email templates
+  followup_email_template: |
+    Dear {full_name},
+    
+    Thank you for completing our initial screening process.
+    We will review your responses and get back to you within 2-3 business days.
+    
+    Best regards,
+    The TalentScout Team

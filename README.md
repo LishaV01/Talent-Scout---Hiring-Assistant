@@ -1,5 +1,6 @@
-# Talent-Scout---Hiring-Assistant
+"TalentScout Hiring Assistant " 🤖
 An intelligent AI-powered conversational screening tool that revolutionizes the initial candidate interview process through natural language processing and automated assessments.
+
 
 🌟 Project Overview
 TalentScout Hiring Assistant is a sophisticated AI-driven recruitment tool that automates the initial candidate screening process. Built with Streamlit and powered by OpenAI's GPT-3.5, it conducts natural conversations with candidates, extracting relevant information and assessing technical skills through dynamically generated questions.
